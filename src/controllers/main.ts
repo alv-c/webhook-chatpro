@@ -20,16 +20,20 @@ export const main = async (data: any) => {
 
         else if (data?.Body?.Info?.SenderJid && jsonBuffer) {
             let jsonArray = JSON.parse(jsonBuffer.toString());
-            const foundJson = jsonArray.find(item => item.whatsapp === '556291733837');
+            const foundJson = jsonArray.find(item => item.whatsapp === '556291733837'); //deixar dinamico
             let jsonInsert = null;
             if (foundJson) jsonInsert = foundJson;
-            jsonArray = jsonArray.filter(item => item.whatsapp !== '556291733837');
+            jsonArray = jsonArray.filter(item => item.whatsapp !== '556291733837'); //deixar dinamico
             jsonBuffer = Buffer.from(JSON.stringify(jsonArray));
-            addDescricaoProblema(jsonInsert, 'descrição problema teste');
+            addDescricaoProblema(jsonInsert, 'descrição problema teste'); //deixar dinamico
 
             try {
                 await saveMsg(jsonInsert);
+                let msg = `Ordem de serviço emitida com sucesso! Aguarde o processo de análise, que logo entraremos em contato.`;
+                await sendMsg(data, msg);
             } catch (error) {
+                let msg = `Erro ao tentar emitir *ORDEM DE SERVIÇO*. Por favor, tente novamente em alguns instantes!`;
+                await sendMsg(data, msg);
                 console.error("Erro ao salvar a mensagem:", error);
             }
 
