@@ -7,20 +7,19 @@ datasource dbMysql {
   url      = env("DATABASE_URL")
 }
 
-model mensagens {
-  ID_MENSAGEN    Int      @id @default(autoincrement())
-  NUMERO_CONTATO String
-  dt_created     DateTime @default(now())
-  NOME_CONTATO   String?  @dbMysql.MediumText
-  TEXTO          String   @dbMysql.LongText
-}
+// model mensagens {
+//   ID_MENSAGEN    Int      @id @default(autoincrement())
+//   NUMERO_CONTATO String
+//   dt_created     DateTime @default(now())
+//   NOME_CONTATO   String?  @dbMysql.MediumText
+//   TEXTO          String   @dbMysql.LongText
+// }
 
 model OrdensServicoWpp {
-  id                      Int      @id @default(autoincrement())
-  data_json               Json
-  descricao_problema_json Json?
-  created_at              DateTime @default(now())
-  updated_at              DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  data_json  Json
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("ordens_servico_wpp")
 }

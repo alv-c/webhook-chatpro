@@ -6,12 +6,10 @@ import { PrismaClient } from '@prisma/client'
 import { IMsgData } from '../interfaces/interfaces'
 const prisma = new PrismaClient()
 
-export const sendMsg = async (data: any) => {
+export const sendMsg = async (data: any, msg) => {
     const string = data.Body.Info.RemoteJid
     const result = string.match(/[^@]*/);
     const telefone = result[0];
-
-    const name = data.Body.Info.PushName
 
     const url = process.env.CHATPRO_ENDPOINT_MAIN as string
     const authToken = process.env.CHATPRO_TOKEN_AUTH as string
@@ -19,13 +17,12 @@ export const sendMsg = async (data: any) => {
 
     let requestData = {
         number: telefone,
-        message: `Olá, ${name}, Obrigado por se inscrever no nosso canal de comunicações, em breve vc recebera informações sobre seus atendimentos!!!!`,
+        message: msg,
     }
 
-    console.log(url, authToken, instanceId, requestData)
+    // console.log(url, authToken, instanceId, requestData)
 
     try {
-
         const response = await axios.post(url, requestData, {
             headers: {
                 Authorization: authToken,
@@ -35,13 +32,10 @@ export const sendMsg = async (data: any) => {
                 instance_id: instanceId
             }
         })
-        console.log(response);
-
+        // console.log(response);
     } catch (error) {
         console.log(error);
-
     }
-
     return
 }
 

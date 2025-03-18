@@ -1,29 +1,42 @@
-import { saveMsg } from "./messageControllers";
+import { saveMsg, sendMsg } from "./messageControllers";
+let jsonBuffer: any = null;
 
 export const main = async (data: any) => {
     const dataMessage: any = data?.Body?.Text;
     if (data?.Type === 'receveid_message' && dataMessage) {
 
         const dataArrayOrdemServ = dataMessage.split('\n');
-        
         if (dataArrayOrdemServ[0] === '*Ordem de servico*') {
             dataArrayOrdemServ.splice(0, 1);
+            jsonBuffer = Buffer.from(JSON.stringify([{
+                nome: data?.Body?.Info?.PushName,
+                whatsapp: data?.Body?.Info?.SenderJid.match(/^(\d+)@/)[1],
+                cs_id: dataArrayOrdemServ[0].trim(),
+                num_rota: dataArrayOrdemServ[1]
+            }]));
+            let msg = `Olá ${data?.Body?.Info.PushName}. Agora, *ESCREVA* com detalhes o problema em questão, para abertura da *ORDEM DE SERVIÇO*.`;
+            await sendMsg(data, msg);
+        }
+
+        else if (data?.Body?.Info?.SenderJid && jsonBuffer) {
+            let jsonArray = JSON.parse(jsonBuffer.toString());
+            const foundJson = jsonArray.find(item => item.whatsapp === '556291733837');
+            let jsonInsert = null;
+            if (foundJson) jsonInsert = foundJson;
+            jsonArray = jsonArray.filter(item => item.whatsapp !== '556291733837');
+            jsonBuffer = Buffer.from(JSON.stringify(jsonArray));
+            addDescricaoProblema(jsonInsert, 'descrição problema teste');
+
             try {
-                await saveMsg({
-                    nome: data?.Body?.Info?.PushName,
-                    whatsapp: data?.Body?.Info?.SenderJid.match(/^(\d+)@/)[1],
-                    cs_id: dataArrayOrdemServ[0].trim(),
-                    num_rota: dataArrayOrdemServ[1]
-                });
+                await saveMsg(jsonInsert);
             } catch (error) {
                 console.error("Erro ao salvar a mensagem:", error);
             }
+
+            function addDescricaoProblema(jsonObject, descricao) {
+                jsonObject.descricao_problema = descricao;
+            }
         }
-
-
-        // if (dataArrayOrdemServ[0] === '*Descrição do problema - Ordem de serviço*') {}
-
-
     } else {
         console.error("Mensagem ou tipo de dado inválido.");
     }
