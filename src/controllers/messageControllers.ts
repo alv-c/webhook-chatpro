@@ -44,6 +44,7 @@ export const saveMsg = async (body: any) => {
         await prisma.ordensServicoWpp.create({
             data: {
                 data_json: body,
+                status: 'pendente',
             },
         });
         console.log('Mensagem salva com sucesso!');

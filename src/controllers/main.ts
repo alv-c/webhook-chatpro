@@ -12,7 +12,8 @@ export const main = async (data: any) => {
                 nome: data?.Body?.Info?.PushName,
                 whatsapp: data?.Body?.Info?.SenderJid.match(/^(\d+)@/)[1],
                 cs_id: dataArrayOrdemServ[0].trim(),
-                num_rota: dataArrayOrdemServ[1]
+                num_rota: dataArrayOrdemServ[1],
+                descricao_problema: null,
             }]));
             let msg = `Olá ${data?.Body?.Info.PushName}. Agora, *ESCREVA* com detalhes o problema em questão, para abertura da *ORDEM DE SERVIÇO*.`;
             await sendMsg(data, msg);
@@ -20,19 +21,20 @@ export const main = async (data: any) => {
 
         else if (data?.Body?.Info?.SenderJid && jsonBuffer) {
             let jsonArray = JSON.parse(jsonBuffer.toString());
-            const foundJson = jsonArray.find(item => item.whatsapp === '556291733837'); //deixar dinamico
+            const foundJson = jsonArray.find(item => item.whatsapp === data?.Body?.Info?.SenderJid.match(/^(\d+)@/)[1]);
             let jsonInsert = null;
             if (foundJson) jsonInsert = foundJson;
-            jsonArray = jsonArray.filter(item => item.whatsapp !== '556291733837'); //deixar dinamico
+            jsonArray = jsonArray.filter(item => item.whatsapp !== data?.Body?.Info?.SenderJid.match(/^(\d+)@/)[1]);
             jsonBuffer = Buffer.from(JSON.stringify(jsonArray));
-            addDescricaoProblema(jsonInsert, 'descrição problema teste'); //deixar dinamico
+            addDescricaoProblema(jsonInsert, data?.Body?.Text);
+            let msg = '';
 
             try {
                 await saveMsg(jsonInsert);
-                let msg = `Ordem de serviço emitida com sucesso! Aguarde o processo de análise, que logo entraremos em contato.`;
+                msg = `Ordem de serviço emitida com sucesso! Aguarde o processo de análise, que logo entraremos em contato.`;
                 await sendMsg(data, msg);
             } catch (error) {
-                let msg = `Erro ao tentar emitir *ORDEM DE SERVIÇO*. Por favor, tente novamente em alguns instantes!`;
+                msg = `Erro ao tentar emitir *ORDEM DE SERVIÇO*. Por favor, tente novamente em alguns instantes!`;
                 await sendMsg(data, msg);
                 console.error("Erro ao salvar a mensagem:", error);
             }

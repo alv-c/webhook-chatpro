@@ -15,11 +15,17 @@ datasource dbMysql {
 //   TEXTO          String   @dbMysql.LongText
 // }
 
+enum Status {
+  pendente
+  aberta
+}
+
 model OrdensServicoWpp {
   id         Int      @id @default(autoincrement())
   data_json  Json
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  status     Status   @default(pendente) // Adicionando a nova coluna status com valor padrão 'pendente'
 
   @@map("ordens_servico_wpp")
 }
